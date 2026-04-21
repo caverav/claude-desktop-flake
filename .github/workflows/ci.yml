@@ -19,8 +19,6 @@ jobs:
         include:
           - label: aarch64-darwin
             os: macos-14
-          - label: x86_64-darwin
-            os: macos-13
     runs-on: ${{ matrix.os }}
 
     steps:
