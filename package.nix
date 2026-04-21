@@ -18,8 +18,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   sourceRoot = ".";
 
-  dontPatchELF = true;
-  dontStrip = true;
   dontFixup = true;
 
   unpackPhase = ''
