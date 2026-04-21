@@ -20,12 +20,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
 
   dontFixup = true;
 
-  unpackPhase = ''
-    runHook preUnpack
-    undmg "$src"
-    runHook postUnpack
-  '';
-
   installPhase = ''
     runHook preInstall
 
