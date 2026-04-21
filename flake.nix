@@ -53,10 +53,7 @@
         in
         {
           default = pkgs.mkShellNoCC {
-            packages = [
-              pkgs.undmg
-              pkgs.nix-prefetch
-            ];
+            packages = [ pkgs.undmg ];
           };
         }
       );
