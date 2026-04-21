@@ -36,7 +36,6 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   meta = {
     description = "Anthropic's official desktop client for Claude";
     homepage = "https://claude.ai/download";
-    changelog = "https://claude.ai/download";
     license = lib.licenses.unfree;
     sourceProvenance = [ lib.sourceTypes.binaryNativeCode ];
     platforms = [
