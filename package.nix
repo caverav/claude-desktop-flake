@@ -30,13 +30,9 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     runHook preInstall
 
     mkdir -p "$out/Applications" "$out/bin"
-    cp -R "Claude.app" "$out/Applications/Claude.app"
-
-    cat > "$out/bin/claude-desktop" <<EOF
-    #!${stdenvNoCC.shell}
-    exec "$out/Applications/Claude.app/Contents/MacOS/Claude" "\$@"
-    EOF
-    chmod +x "$out/bin/claude-desktop"
+    cp -R Claude.app "$out/Applications/Claude.app"
+    ln -s "$out/Applications/Claude.app/Contents/MacOS/Claude" \
+      "$out/bin/claude-desktop"
 
     runHook postInstall
   '';
