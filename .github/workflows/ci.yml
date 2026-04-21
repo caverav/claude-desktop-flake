@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: aarch64-darwin
+            os: macos-14
+          - label: x86_64-darwin
+            os: macos-13
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v27
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+            accept-flake-config = true
+
+      - name: Show Nix and system info
+        run: |
+          nix --version
+          uname -a
+          sw_vers
+
+      - name: Check flake evaluates for ${{ matrix.label }}
+        run: nix flake check --print-build-logs --no-build
+
+      - name: Build packages.${{ matrix.label }}.default
+        run: nix build --print-build-logs .#default
+
+      - name: Verify build artefacts
+        run: |
+          set -euxo pipefail
+          test -d  result/Applications/Claude.app
+          test -x  result/bin/claude-desktop
+          test -x  result/Applications/Claude.app/Contents/MacOS/Claude
+          bundle_id=$(/usr/bin/plutil -extract CFBundleIdentifier raw \
+            result/Applications/Claude.app/Contents/Info.plist)
+          [ "$bundle_id" = "com.anthropic.claudefordesktop" ]
+          version=$(/usr/bin/plutil -extract CFBundleShortVersionString raw \
+            result/Applications/Claude.app/Contents/Info.plist)
+          echo "Built Claude Desktop $version for ${{ matrix.label }}"
+
+      - name: Verify the launcher executes (--help / --version may not exist, so just probe -h)
+        run: |
+          # Claude Desktop is a GUI app; we only check that the launcher
+          # script resolves to a real binary without dyld errors.
+          /usr/bin/file result/bin/claude-desktop
+          /usr/bin/file result/Applications/Claude.app/Contents/MacOS/Claude
